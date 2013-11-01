@@ -1,6 +1,6 @@
 /**
  * Holds the details for a picture
- * @author Alec Lombardo
+ * @author Alec Lombardo, Alec Li
  * @version 1.0
  */
 public class PictureDetail {
