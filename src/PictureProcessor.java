@@ -2,7 +2,7 @@
 public class PictureProcessor {
 	public static String getTable(int pw, int spaceDist,
 			PictureDetail[] picture, boolean linksOn) {
-		int imagesdimension = pw - spaceDist*(picture.length+1);
+		int imagesdimension = pw - spaceDist*(picture.length-1);
 		double ratiosum = 0;
 
 		for(int i = 0; i<picture.length; i++)
@@ -11,15 +11,16 @@ public class PictureProcessor {
 			int height = picture[i].getHeight();
 			ratiosum += (double)width/height;
 		}
-		int desiredheight = imagesdimension/(int)ratiosum;
+		double desiredheight = Math.round(100*imagesdimension/ratiosum)/100;
+		//int desiredheight = (int) desiredheightpre;
 
 		// Print <table border="0" cellpadding = "0" style="margin:auto; height:100px; border-spacing:10px 5px">
-		int tableheight = desiredheight+spaceDist;
+		double tableheight = desiredheight+spaceDist;
 		int halfspaceDist = spaceDist/2;
 
 		String returnVal = "<table border=\"0\" cellpadding = \"0\" style=\"margin:auto; height:";
 		returnVal += tableheight + "px; width:" + pw;
-		returnVal += "; border-spacing:" + spaceDist + "px; " + halfspaceDist + "px\">";
+		returnVal += "; border-spacing:" + spaceDist + "px " + halfspaceDist + "px\">";
 		returnVal += "\n     <tr>\n";
 		//for loop for all the image to print
 		for(int i = 0; i<picture.length; i++)
