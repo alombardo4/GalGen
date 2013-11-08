@@ -23,9 +23,11 @@ public class GalGen {
 			File[] files = folder.listFiles();
 			ArrayList<PictureDetail> picList = new ArrayList<PictureDetail>();
 			for (int i = 0; i < files.length; i++) {
-				PictureDetail temp = PictureReader.readPicture(files[i].getPath());
-				temp.setName(temp.getName().replaceAll(folderPath, ""));
-				picList.add(temp);
+				if (files[i].isFile() && !files[i].isHidden()) {
+					PictureDetail temp = PictureReader.readPicture(files[i].getPath());
+					temp.setName(temp.getName().replaceAll(folderPath, ""));
+					picList.add(temp);
+				}
 			}
 			System.out.println("How wide do you want your table?");
 			int pageWidth = keyboard.nextInt();
@@ -34,28 +36,39 @@ public class GalGen {
 			int margins = keyboard.nextInt();
 			keyboard.nextLine();
 			Random rand = new Random(System.currentTimeMillis());
-			int lastAccessed = 0;
 			String page = "";
 			while(!picList.isEmpty()) {
 				int num = 0;
 				do {
 					num = rand.nextInt(6);
 				}while(num < 3);
-				PictureDetail[] pics = new PictureDetail[num];
-				for (int i = 0; i < num; i++) {
-					if (!picList.isEmpty()) {
-						pics[i] = picList.remove(0);
-						lastAccessed++;
+				System.out.println("Num: " + num + " Size: " + picList.size());
+				PictureDetail[] pics;
+				if (num < picList.size()) {
+					pics = new PictureDetail[num];
+					for (int i = 0; i < pics.length; i++) {
+						if (!picList.isEmpty()) {
+							pics[i] = (PictureDetail) picList.remove(0);
+						}
 					}
 				}
+				else {
+					pics = new PictureDetail[picList.size()];
+					for (int i = 0; i < pics.length; i++) {
+						if (!picList.isEmpty()) {
+							pics[i] = (PictureDetail) picList.remove(0);
+						}
+					}
+				}
+
 				
-				page += PictureProcessor.getTable(pageWidth, margins, pics);
+				page += PictureProcessor.getTable(pageWidth, margins, pics, false);
 			}
 			
 			System.out.println("Where do you want to save the text?");
 			String savePath = keyboard.nextLine();
 			
-			File output = new File(savePath + "/table.txt");
+			File output = new File(savePath + "/table.html");
 			if (!output.exists()) {
 				output.createNewFile();
 			}

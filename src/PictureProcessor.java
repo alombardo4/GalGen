@@ -1,14 +1,15 @@
 
 public class PictureProcessor {
 	public static String getTable(int pw, int spaceDist,
-			PictureDetail[] picture) {
-		int arraylength = picture.length;
-		int imagesdimension = pw - spaceDist*(arraylength+1);
+			PictureDetail[] picture, boolean linksOn) {
+		int imagesdimension = pw - spaceDist*(picture.length+1);
 		double ratiosum = 0;
 
-		for(int i = 0; i<arraylength; i++)
+		for(int i = 0; i<picture.length; i++)
 		{
-			ratiosum += picture[i].getWidth()/picture[i].getHeight();
+			int width = picture[i].getWidth();
+			int height = picture[i].getHeight();
+			ratiosum += (double)width/height;
 		}
 		int desiredheight = imagesdimension/(int)ratiosum;
 
@@ -21,17 +22,24 @@ public class PictureProcessor {
 		returnVal += "; border-spacing:" + spaceDist + "px; " + halfspaceDist + "px\">";
 		returnVal += "\n     <tr>\n";
 		//for loop for all the image to print
-		for(int i = 0; i<arraylength; i++)
+		for(int i = 0; i<picture.length; i++)
 		{
 			//Print <td>
 			returnVal += "    <td>\n               ";
 			//Print link a href
-			returnVal += "<a href=\"_assets/" + picture[i].getName() + "\" target=\"_blank\">";
-			returnVal += "\n               ";
+			if (linksOn) {
+				returnVal += "<a href=\"_assets" + picture[i].getName() + "\" target=\"_blank\">";
+				returnVal += "\n               ";
+			}
 			//Print image src
-			returnVal += "<img src=\"_assets/" + picture[i].getName() + "\" ";
+			returnVal += "<img src=\"_assets" + picture[i].getName() + "\" ";
 			returnVal += "height=\"" + desiredheight + "\">\n               ";
-			returnVal += "</a>\n          </td>";
+			if (linksOn) {
+				returnVal += "</a>\n          </td>";
+			}
+			else {
+				returnVal += "\n          </td>";
+			}
 
 		}
 		//Close tr and table tags
