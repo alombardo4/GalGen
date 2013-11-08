@@ -14,6 +14,7 @@ public class GalGen {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		GalGenFrame frame = new GalGenFrame();
 		Scanner keyboard = new Scanner(System.in);
 		System.out.println("Welcome to GalGen. Please enter the file path" +
 				"for your images.");
