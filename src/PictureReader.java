@@ -21,10 +21,9 @@ public class PictureReader {
 	 */
 	public static PictureDetail readPicture(String filePath)
 	throws IOException, FileNotFoundException {
-		System.out.println(filePath);
+		// System.out.println(filePath);
 	    BufferedImage buffimg = ImageIO.read(new File(filePath));       
 
-        System.out.println("Width: " + buffimg.getWidth());
         PictureDetail det = new PictureDetail(filePath, buffimg.getWidth(),
         		buffimg.getHeight());
 		return det;
