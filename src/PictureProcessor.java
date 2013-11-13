@@ -1,5 +1,17 @@
-
+/**
+* This class contains the table creation algorithm.
+* @author Alec Li
+* @version 1.0
+*/
 public class PictureProcessor {
+	/**
+	* Processes a list of pictures into a single row table
+	* @param pw Page width
+	* @param spaceDist The distance between the pictures
+	* @param picture An array of pictures to be put in the table
+	* @param linksOn Whether or not pictures should be links
+	* @return The String representation of the HTML code for the table
+	*/
 	public static String getTable(int pw, int spaceDist,
 			PictureDetail[] picture, boolean linksOn) {
 		int imagesdimension = pw - spaceDist*(picture.length-1);

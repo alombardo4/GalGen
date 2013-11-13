@@ -1,15 +1,14 @@
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 /**
  * Reads the picture data to prepare for storage in a PictureDetail object
  * @author Alec Lombardo
  * @version 1.0
  */
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
 public class PictureReader {
 	/**
 	 * Opens the picture at the given file path and finds its height and width.
@@ -21,9 +20,7 @@ public class PictureReader {
 	 */
 	public static PictureDetail readPicture(String filePath)
 	throws IOException, FileNotFoundException {
-		// System.out.println(filePath);
 	    BufferedImage buffimg = ImageIO.read(new File(filePath));       
-
         PictureDetail det = new PictureDetail(filePath, buffimg.getWidth(),
         		buffimg.getHeight());
 		return det;

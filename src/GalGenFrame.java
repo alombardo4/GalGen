@@ -1,3 +1,8 @@
+/**
+* Generates and runs the GUI for GalGen
+* @author Alec Lombardo
+* @version 1.0
+*/
 import javax.swing.JFrame;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -16,13 +21,20 @@ import java.util.Scanner;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.io.IOException;
+
 public class GalGenFrame extends JFrame {
 	private JTextField width, padding;
-        private JLabel inputFolderBox, outputFolderBox;
+    private JLabel inputFolderBox, outputFolderBox;
 	private JButton inputButton, outputButton, process;
 	private File openFolder;
 	private File saveFolder;
-        private JLabel tableWidth, pixelPadding, status;
+    private JLabel tableWidth, pixelPadding, status;
+
+    /**
+    * Constructor for GalGenFrame. Sets up the GUI with
+    * Grid layout and 5,2 size. Contains text boxes,
+    * labels, and buttons as well as button listeners.
+    */
 	public GalGenFrame() {
 		super("Gallery Generator");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -91,94 +103,92 @@ public class GalGenFrame extends JFrame {
                 pack();
                 setVisible(true);
 	}
-        private void checkInputs() throws NullPointerException, NumberFormatException, IOException {
+    
+    /**
+    * Runs the input checker to ensure that no exceptions will occur
+    * during processing.
+    * @throws NullPointerException When files may not exist.
+    * @throws NumberFormatException When input is not numeric
+    * @throws IOException When filesystem cannot be accessed
+    *
+    */
+    private void checkInputs() throws NullPointerException, NumberFormatException, IOException {
+            File[] files = openFolder.listFiles();
+            int pageWidth = Integer.parseInt(width.getText());
+            int margins = Integer.parseInt(padding.getText());
+            File output = new File(saveFolder.getAbsolutePath() + "/table.html");
+            if (!output.exists()) {
+                    output.createNewFile();
+            }
+            FileWriter fw = new FileWriter(output.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+    }
+
+    /**
+    * This class is for threading the processing so as not to lock up GUI
+    * @author Alec Lombardo
+    * @version 1.0
+    */
+    private class ProcessorRunnable implements Runnable {
+        /**
+        * Runs the thread. Opens pictures, reads them, sends them for processing.
+        * When done, it writes the output file.
+        */
+        public void run() {
+            try {
                 File[] files = openFolder.listFiles();
+                ArrayList<PictureDetail> picList = new ArrayList<PictureDetail>();
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isFile() && !files[i].isHidden()) {
+                        PictureDetail temp = PictureReader.readPicture(files[i].getPath());
+                        String oldpath = openFolder.getAbsolutePath();
+                        String setpath = temp.getName();
+                        setpath = setpath.replace(oldpath, "");
+                        temp.setName(setpath);
+                        picList.add(temp);
+                    }
+                    System.gc();
+                }
                 int pageWidth = Integer.parseInt(width.getText());
                 int margins = Integer.parseInt(padding.getText());
+                Random rand = new Random(System.currentTimeMillis());
+                String page = "";
+                while(!picList.isEmpty()) {
+                    System.gc();
+                    int num = 0;
+                    do {
+                        num = rand.nextInt(8);
+                    }while(num < 3);
+                    PictureDetail[] pics;
+                    if (num < picList.size()) {
+                        pics = new PictureDetail[num];
+                        for (int i = 0; i < pics.length; i++) {
+                            if (!picList.isEmpty()) {
+                                pics[i] = (PictureDetail) picList.remove(0);
+                            }
+                        }
+                    }
+                    else {
+                        pics = new PictureDetail[picList.size()];
+                        for (int i = 0; i < pics.length; i++) {
+                            if (!picList.isEmpty()) {
+                                pics[i] = (PictureDetail) picList.remove(0);
+                            }
+                        }
+                    }                    
+                    page += PictureProcessor.getTable(pageWidth, margins, pics, false);
+                }
                 File output = new File(saveFolder.getAbsolutePath() + "/table.html");
                 if (!output.exists()) {
-                        output.createNewFile();
+                    output.createNewFile();
                 }
                 FileWriter fw = new FileWriter(output.getAbsoluteFile());
                 BufferedWriter bw = new BufferedWriter(fw);
-        }
-        private class ProcessorRunnable implements Runnable {
-                public void run() {
-                        try {
-                                File[] files = openFolder.listFiles();
-                                ArrayList<PictureDetail> picList = new ArrayList<PictureDetail>();
-                                for (int i = 0; i < files.length; i++) {
-                                        if (files[i].isFile() && !files[i].isHidden()) {
-                                                PictureDetail temp = PictureReader.readPicture(files[i].getPath());
-                                                String oldpath = openFolder.getAbsolutePath();
-                                                String setpath = temp.getName();
-                                                setpath = setpath.replace(oldpath, "");
-                                                temp.setName(setpath);
-                                                picList.add(temp);
-                                        }
-                                        System.gc();
-                                }
-                                int pageWidth = Integer.parseInt(width.getText());
-                                int margins = Integer.parseInt(padding.getText());
-                                Random rand = new Random(System.currentTimeMillis());
-                                String page = "";
-                                while(!picList.isEmpty()) {
-                                        System.gc();
-                                        int num = 0;
-                                        do {
-                                                num = rand.nextInt(8);
-                                        }while(num < 3);
-                                        PictureDetail[] pics;
-                                        if (num < picList.size()) {
-                                                pics = new PictureDetail[num];
-                                                for (int i = 0; i < pics.length; i++) {
-                                                        if (!picList.isEmpty()) {
-                                                                pics[i] = (PictureDetail) picList.remove(0);
-                                                        }
-                                                }
-                                        }
-                                        else {
-                                                pics = new PictureDetail[picList.size()];
-                                                for (int i = 0; i < pics.length; i++) {
-                                                        if (!picList.isEmpty()) {
-                                                                pics[i] = (PictureDetail) picList.remove(0);
-                                                        }
-                                                }
-                                        }
+                bw.write(page);
+                bw.close();
+                status.setText("Done!");                                
+            } catch (Exception e) {}
 
-                                        
-                                        page += PictureProcessor.getTable(pageWidth, margins, pics, false);
-                                }
-                                
-                                
-                                File output = new File(saveFolder.getAbsolutePath() + "/table.html");
-                                if (!output.exists()) {
-                                        output.createNewFile();
-                                }
-                                FileWriter fw = new FileWriter(output.getAbsoluteFile());
-                                BufferedWriter bw = new BufferedWriter(fw);
-                                bw.write(page);
-                                bw.close();
-                                status.setText("Done!");                                
-                        } catch (Exception e) {
-
-                        }
-
-                } 
-        }
+        } 
+    }
 }
-
-
-        // saveas.addActionListener(new ActionListener() {
-        //     public void actionPerformed(ActionEvent e) {
-        //         JFileChooser saveChooser = new JFileChooser();
-        //         try {
-        //             saveChooser.showSaveDialog(gui);
-        //             File saveFile = saveChooser.getSelectedFile();
-        //             ImageIO.write(currentPic.getImage(), "png", saveFile);
-        //         } catch (Exception ex) {
-        //             ex.printStackTrace();
-        //         }
-        //     }
-        // });
-
