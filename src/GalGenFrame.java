@@ -23,22 +23,22 @@ import javax.swing.JOptionPane;
 import java.io.IOException;
 
 public class GalGenFrame extends JFrame {
-	private JTextField width, padding;
+	private JTextField width, padding, ppr;
     private JLabel inputFolderBox, outputFolderBox;
 	private JButton inputButton, outputButton, process;
 	private File openFolder;
 	private File saveFolder;
-    private JLabel tableWidth, pixelPadding, status;
+    private JLabel tableWidth, pixelPadding, picsPerRow, status;
 
     /**
     * Constructor for GalGenFrame. Sets up the GUI with
-    * Grid layout and 5,2 size. Contains text boxes,
+    * Grid layout and 6,2 size. Contains text boxes,
     * labels, and buttons as well as button listeners.
     */
 	public GalGenFrame() {
 		super("Gallery Generator");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                setLayout(new GridLayout(5,2));
+                setLayout(new GridLayout(6,2));
                 setPreferredSize(new Dimension(400, 400));
                 inputButton = new JButton("Input Folder");
                 inputFolderBox = new JLabel();
@@ -87,9 +87,11 @@ public class GalGenFrame extends JFrame {
                 });
                 tableWidth = new JLabel("Table Width");
                 pixelPadding = new JLabel("Pixel Padding");
+                picsPerRow = new JLabel("<html>Pictures Per Row<br>(0 is random)</html>");
                 status = new JLabel("Fill out the form and click Process");
                 width = new JTextField("980");
                 padding = new JTextField("5");
+                ppr = new JTextField("0");
                 add(inputButton);
                 add(inputFolderBox);
                 add(outputButton);
@@ -98,6 +100,8 @@ public class GalGenFrame extends JFrame {
                 add(width);
                 add(pixelPadding);
                 add(padding);
+                add(picsPerRow);
+                add(ppr);
                 add(process);
                 add(status);
                 pack();
@@ -116,6 +120,7 @@ public class GalGenFrame extends JFrame {
             File[] files = openFolder.listFiles();
             int pageWidth = Integer.parseInt(width.getText());
             int margins = Integer.parseInt(padding.getText());
+            int perRow = Integer.parseInt(ppr.getText());
             File output = new File(saveFolder.getAbsolutePath() + "/table.html");
             if (!output.exists()) {
                     output.createNewFile();
@@ -126,7 +131,7 @@ public class GalGenFrame extends JFrame {
 
     /**
     * This class is for threading the processing so as not to lock up GUI
-    * @author Alec Lombardo
+    * @author Alec Lombardo and Alec Li
     * @version 1.0
     */
     private class ProcessorRunnable implements Runnable {
@@ -151,14 +156,25 @@ public class GalGenFrame extends JFrame {
                 }
                 int pageWidth = Integer.parseInt(width.getText());
                 int margins = Integer.parseInt(padding.getText());
+                int perRow = Integer.parseInt(ppr.getText());
+                
                 Random rand = new Random(System.currentTimeMillis());
+                
                 String page = "";
                 while(!picList.isEmpty()) {
                     System.gc();
                     int num = 0;
-                    do {
-                        num = rand.nextInt(8);
-                    }while(num < 3);
+                    if (perRow == 0)
+                    {
+	                    do {
+	                        num = rand.nextInt(8);
+	                    }while(num < 3);
+                    }
+                    else
+                    {
+                    	num = perRow;
+                    }
+                    
                     PictureDetail[] pics;
                     if (num < picList.size()) {
                         pics = new PictureDetail[num];
